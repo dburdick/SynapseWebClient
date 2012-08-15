@@ -16,8 +16,8 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 
-		<synapse.version>2012-11-14-8d0e564-223</synapse.version>
-
+		<synapse.version>develop-SNAPSHOT</synapse.version>
+		
 		<gwtVersion>2.4.0</gwtVersion>
 		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
 		<guiceVersion>3.0-rc2</guiceVersion>
@@ -472,6 +472,13 @@
 			<artifactId>guava-io</artifactId>
 			<version>r03</version>
 		</dependency>
+		
+		<!-- Prov Tree layout -->
+		<dependency>
+            <groupId>org.abego.treelayout</groupId>
+            <artifactId>org.abego.treelayout.core</artifactId>
+            <version>1.0.1</version>
+        </dependency>
 
 	</dependencies>
 

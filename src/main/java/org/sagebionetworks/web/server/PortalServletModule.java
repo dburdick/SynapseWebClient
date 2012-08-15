@@ -7,11 +7,13 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.sagebionetworks.web.client.services.LayoutService;
 import org.sagebionetworks.web.server.servlet.BCCSignupImpl;
 import org.sagebionetworks.schema.adapter.JSONObjectAdapter;
 import org.sagebionetworks.schema.adapter.org.json.JSONObjectAdapterImpl;
 import org.sagebionetworks.web.server.servlet.FileAttachmentServlet;
 import org.sagebionetworks.web.server.servlet.FileUpload;
+import org.sagebionetworks.web.server.servlet.LayoutServiceImpl;
 import org.sagebionetworks.web.server.servlet.LicenseServiceImpl;
 import org.sagebionetworks.web.server.servlet.LinkedInServiceImpl;
 import org.sagebionetworks.web.server.servlet.NcboSearchService;
@@ -69,6 +71,10 @@ public class PortalServletModule extends ServletModule {
 		// setup the node service
 		bind(NodeServiceImpl.class).in(Singleton.class);
 		serve("/Portal/node").with(NodeServiceImpl.class);
+			
+		// setup the layout service
+		bind(LayoutServiceImpl.class).in(Singleton.class);
+		serve("/Portal/layout").with(LayoutServiceImpl.class);
 			
 		
 		// Setup the License service mapping

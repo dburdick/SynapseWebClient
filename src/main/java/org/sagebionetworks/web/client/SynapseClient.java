@@ -3,13 +3,13 @@ package org.sagebionetworks.web.client;
 import java.util.List;
 
 import org.sagebionetworks.client.exceptions.SynapseException;
+import org.sagebionetworks.repo.model.Reference;
 import org.sagebionetworks.web.shared.AccessRequirementsTransport;
 import org.sagebionetworks.web.shared.EntityBundleTransport;
 import org.sagebionetworks.web.shared.EntityWrapper;
 import org.sagebionetworks.web.shared.SerializableWhitelist;
 import org.sagebionetworks.web.shared.exceptions.RestServiceException;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
@@ -31,6 +31,8 @@ public interface SynapseClient extends RemoteService {
 	public EntityWrapper search(String searchQueryJson); 
 	
 	public String getEntityTypeBatch(List<String> entityIds) throws RestServiceException;
+	
+	public String getEntityHeaderBatch(String referenceList) throws RestServiceException;
 	
 	public SerializableWhitelist junk(SerializableWhitelist l);
 	
@@ -172,4 +174,11 @@ public interface SynapseClient extends RemoteService {
 	public String markdown2Html(String markdown, String attachmentUrl);
 	
 	public Long getStorageUsage(String entityId) throws RestServiceException;
+
+	public String getActivityForEntity(String entityId) throws RestServiceException;
+	
+	public String getActivityForEntityVersion(String entityId, Long versionNumber) throws RestServiceException;
+	
+	public String getActivity(String activityId) throws RestServiceException;
+
 }
