@@ -413,6 +413,10 @@ public class DisplayConstants {
 	public static final String CREATED = "Created";
 	public static final String MODIFIED = "Modified";
 	public static final String NO_VERSION_COMMENT = "No Version Comment";
-
+	public static final String ADD_FOLDER = "Add Folder";
+	public static final String ADD_FILE = "Add File";
+	public static final String FILES = "Files";
+	public static final String ERROR_FOLDER_CREATION_FAILED = "Folder creation failed. Please try again";
+	
 }
 
