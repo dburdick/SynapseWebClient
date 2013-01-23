@@ -477,6 +477,12 @@ public class EntityPropertyFormViewImpl extends FormPanel implements EntityPrope
 	    		handleInsertWidgetCommand(WidgetConstants.PROVENANCE_CONTENT_TYPE);
 	    	};
 		}));
+	    menu.add(getNewCommand(WidgetConstants.ENTITYLIST_FRIENDLY_NAME, new SelectionListener<ComponentEvent>() {
+			@Override
+			public void componentSelected(ComponentEvent ce) {
+				handleInsertWidgetCommand(WidgetConstants.ENTITYLIST_CONTENT_TYPE);
+			}
+		}));
 	    
 	    return menu;
 	  }

@@ -79,6 +79,8 @@ import org.sagebionetworks.web.client.widget.entity.download.LocationableDownloa
 import org.sagebionetworks.web.client.widget.entity.download.LocationableDownloaderViewImpl;
 import org.sagebionetworks.web.client.widget.entity.download.LocationableUploaderView;
 import org.sagebionetworks.web.client.widget.entity.download.LocationableUploaderViewImpl;
+import org.sagebionetworks.web.client.widget.entity.editor.EntityListConfigView;
+import org.sagebionetworks.web.client.widget.entity.editor.EntityListConfigViewImpl;
 import org.sagebionetworks.web.client.widget.entity.editor.ImageConfigView;
 import org.sagebionetworks.web.client.widget.entity.editor.ImageConfigViewImpl;
 import org.sagebionetworks.web.client.widget.entity.editor.LinkConfigView;
@@ -93,6 +95,8 @@ import org.sagebionetworks.web.client.widget.entity.menu.ActionMenuView;
 import org.sagebionetworks.web.client.widget.entity.menu.ActionMenuViewImpl;
 import org.sagebionetworks.web.client.widget.entity.registration.WidgetRegistrar;
 import org.sagebionetworks.web.client.widget.entity.registration.WidgetRegistrarImpl;
+import org.sagebionetworks.web.client.widget.entity.renderer.EntityListWidgetView;
+import org.sagebionetworks.web.client.widget.entity.renderer.EntityListWidgetViewImpl;
 import org.sagebionetworks.web.client.widget.entity.renderer.ImageWidgetView;
 import org.sagebionetworks.web.client.widget.entity.renderer.ImageWidgetViewImpl;
 import org.sagebionetworks.web.client.widget.entity.renderer.YouTubeWidgetView;
@@ -369,9 +373,11 @@ public class PortalGinModule extends AbstractGinModule {
 		bind(ImageConfigView.class).to(ImageConfigViewImpl.class);
 		bind(ProvenanceConfigView.class).to(ProvenanceConfigViewImpl.class);
 		bind(LinkConfigView.class).to(LinkConfigViewImpl.class);
+		bind(EntityListConfigView.class).to(EntityListConfigViewImpl.class);
 		
 		// UI Widget Renderers
 		bind(YouTubeWidgetView.class).to(YouTubeWidgetViewImpl.class);
+		bind(EntityListWidgetView.class).to(EntityListWidgetViewImpl.class);
 		bind(ImageWidgetView.class).to(ImageWidgetViewImpl.class);
 		// ProvenanceWidget
 		bind(ProvenanceWidgetView.class).to(ProvenanceWidgetViewImpl.class);

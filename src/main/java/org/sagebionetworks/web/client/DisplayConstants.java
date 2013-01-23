@@ -2,6 +2,7 @@ package org.sagebionetworks.web.client;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.Element;
 
 
 public class DisplayConstants {
@@ -437,6 +438,7 @@ public class DisplayConstants {
 	public static final String ENTER_SYNAPSE_ID = "Enter Synapse Id";
 	public static final String REFER_TO_SPECIFIC_VERSION = "Refer to a Specific Version";
 	public static final String CURRENT = "Current";
-	
+	public static final String ADD_ENTITY = "Add Entity";
+		
 }
 

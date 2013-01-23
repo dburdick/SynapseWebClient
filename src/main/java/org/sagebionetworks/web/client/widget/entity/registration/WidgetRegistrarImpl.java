@@ -2,6 +2,7 @@ package org.sagebionetworks.web.client.widget.entity.registration;
 
 import java.util.HashMap;
 
+import org.sagebionetworks.repo.model.widget.EntityListWidgetDescriptor;
 import org.sagebionetworks.repo.model.widget.ImageAttachmentWidgetDescriptor;
 import org.sagebionetworks.repo.model.widget.ProvenanceWidgetDescriptor;
 import org.sagebionetworks.repo.model.widget.WidgetDescriptor;
@@ -54,6 +55,8 @@ public class WidgetRegistrarImpl implements WidgetRegistrar {
 			presenter = ginInjector.getImageConfigEditor();
 		} else if (contentTypeKey.equals(WidgetConstants.LINK_CONTENT_TYPE)) {
 			presenter = ginInjector.getLinkConfigEditor();
+		} else if (contentTypeKey.equals(WidgetConstants.ENTITYLIST_CONTENT_TYPE)) {
+			presenter = ginInjector.getEntityListConfigEditor();
 		} //TODO: add other widget descriptors to this mapping as they become available
 		
 		if (presenter != null)
@@ -76,6 +79,8 @@ public class WidgetRegistrarImpl implements WidgetRegistrar {
 			presenter = ginInjector.getProvenanceRenderer();
 		} else if (contentTypeKey.equals(WidgetConstants.IMAGE_CONTENT_TYPE)) {
 			presenter = ginInjector.getImageRenderer();
+		} else if (contentTypeKey.equals(WidgetConstants.ENTITYLIST_CONTENT_TYPE)) {
+			presenter = ginInjector.getEntityListRenderer();
 		} //TODO: add other widget descriptors to this mapping as they become available
 		
 		if (presenter != null)
@@ -100,6 +105,7 @@ public class WidgetRegistrarImpl implements WidgetRegistrar {
 		registerWidget(WidgetConstants.PROVENANCE_CONTENT_TYPE, WidgetConstants.PROVENANCE_FRIENDLY_NAME, ProvenanceWidgetDescriptor.class.getName());
 		registerWidget(WidgetConstants.IMAGE_CONTENT_TYPE, WidgetConstants.IMAGE_FRIENDLY_NAME, ImageAttachmentWidgetDescriptor.class.getName());
 		registerWidget(WidgetConstants.LINK_CONTENT_TYPE, WidgetConstants.LINK_FRIENDLY_NAME, null);
+		registerWidget(WidgetConstants.ENTITYLIST_CONTENT_TYPE, WidgetConstants.ENTITYLIST_FRIENDLY_NAME, EntityListWidgetDescriptor.class.getName());
 	}
 
 }

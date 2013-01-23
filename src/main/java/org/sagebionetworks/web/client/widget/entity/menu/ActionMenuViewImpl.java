@@ -431,7 +431,7 @@ public class ActionMenuViewImpl extends HorizontalPanel implements ActionMenuVie
 					}
 				});
 				
-				window.setSize(839, 582);
+				window.setSize(entityFinder.getViewWidth(), entityFinder.getViewHeight()); // 839, 582
 				window.setPlain(true);
 				window.setModal(true);
 				window.setBlinkModal(true);

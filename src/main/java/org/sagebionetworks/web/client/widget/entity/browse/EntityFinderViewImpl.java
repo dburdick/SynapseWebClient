@@ -473,12 +473,12 @@ public class EntityFinderViewImpl extends LayoutContainer implements EntityFinde
 
 	@Override
 	public int getViewWidth() {
-		return TOTAL_WIDTH_PX;
+		return TOTAL_WIDTH_PX + 28; // add bordering for windows
 	}
 
 	@Override
 	public int getViewHeight() {
-		return HEIGHT_PX;
+		return HEIGHT_PX + 82; // add bordering for windows
 	}
 	
 }

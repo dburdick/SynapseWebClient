@@ -12,4 +12,9 @@ public class WidgetConstants {
 	
 	public static final String LINK_CONTENT_TYPE = "application/linkDescriptor";
 	public static final String LINK_FRIENDLY_NAME ="Link";
+
+	public static final String ENTITYLIST_CONTENT_TYPE = "application/entityListDescriptor";
+	public static final String ENTITYLIST_FRIENDLY_NAME ="Synapse Entity List";
+
 }
+
