@@ -1,12 +1,19 @@
 package org.sagebionetworks.web.client.widget.entity.menu;
 
+import java.util.List;
+
 import org.sagebionetworks.repo.model.Entity;
 import org.sagebionetworks.repo.model.FileEntity;
 import org.sagebionetworks.repo.model.Link;
+import org.sagebionetworks.repo.model.LocationData;
 import org.sagebionetworks.repo.model.Locationable;
 import org.sagebionetworks.repo.model.Reference;
 import org.sagebionetworks.repo.model.UserProfile;
 import org.sagebionetworks.repo.model.UserSessionData;
+import org.sagebionetworks.repo.model.file.ExternalFileHandle;
+import org.sagebionetworks.repo.model.file.FileHandle;
+import org.sagebionetworks.repo.model.file.S3FileHandle;
+import org.sagebionetworks.repo.model.file.S3FileHandleInterface;
 import org.sagebionetworks.web.client.DisplayConstants;
 import org.sagebionetworks.web.client.DisplayUtils;
 import org.sagebionetworks.web.client.DisplayUtils.IconSize;
@@ -14,6 +21,7 @@ import org.sagebionetworks.web.client.DisplayUtils.SelectedHandler;
 import org.sagebionetworks.web.client.EntityTypeProvider;
 import org.sagebionetworks.web.client.IconsImageBundle;
 import org.sagebionetworks.web.client.SageImageBundle;
+import org.sagebionetworks.web.client.SynapseClientAsync;
 import org.sagebionetworks.web.client.SynapseJSNIUtils;
 import org.sagebionetworks.web.client.events.CancelEvent;
 import org.sagebionetworks.web.client.events.CancelHandler;
@@ -45,6 +53,13 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -55,12 +70,14 @@ import com.google.inject.Inject;
 public class ActionMenuViewImpl extends HorizontalPanel implements ActionMenuView {
 
 	private Presenter presenter;
+	private SageImageBundle sageImageBundle;
 	private IconsImageBundle iconsImageBundle;
 	private AccessControlListEditor accessControlListEditor;
 	private Uploader uploader;
 	private EntityTypeProvider typeProvider;
 	private SynapseJSNIUtils synapseJSNIUtils;
 	private EntityFinder entityFinder;
+	SynapseClientAsync synapseClient;
 	
 	private boolean readOnly;	
 	private Button editButton;
@@ -76,13 +93,16 @@ public class ActionMenuViewImpl extends HorizontalPanel implements ActionMenuVie
 			Uploader locationableUploader, 
 			EntityTypeProvider typeProvider,
 			SynapseJSNIUtils synapseJSNIUtils,
-			EntityFinder entityFinder) {
+			EntityFinder entityFinder,
+			SynapseClientAsync synapseClient) {
+		this.sageImageBundle = sageImageBundle;
 		this.iconsImageBundle = iconsImageBundle;
 		this.accessControlListEditor = accessControlListEditor;
 		this.uploader = locationableUploader;
 		this.typeProvider = typeProvider;
 		this.synapseJSNIUtils = synapseJSNIUtils;
 		this.entityFinder = entityFinder;
+		this.synapseClient = synapseClient;
 		this.setHorizontalAlign(HorizontalAlignment.RIGHT);
 		this.setTableWidth("100%");
 	}
@@ -300,7 +320,11 @@ public class ActionMenuViewImpl extends HorizontalPanel implements ActionMenuVie
 		if (canEdit) {
 			addMoveItem(menu, entity, entityType);
 		}
-
+		
+		if(entity instanceof Locationable || entity instanceof FileEntity) {
+			addUploadToGenomeSpace(menu, entityBundle);
+		}
+		
 		toolsButton.setMenu(menu);
 		if(menu.getItemCount() == 0) {
 			toolsButton.disable();
@@ -440,5 +464,62 @@ public class ActionMenuViewImpl extends HorizontalPanel implements ActionMenuVie
 			}
 		});
 		menu.add(itemMove);
+	}
+
+	private void addUploadToGenomeSpace(final Menu menu, final EntityBundle bundle) {
+		MenuItem item = new MenuItem("Upload to " + AbstractImagePrototype.create(sageImageBundle.genomeSpaceLogoTitle16()).getHTML());
+		item.setIcon(AbstractImagePrototype.create(iconsImageBundle.genomespace16()));		
+		item.addSelectionListener(new SelectionListener<MenuEvent>() {
+			@Override
+			public void componentSelected(MenuEvent ce) {
+				String url = null;
+				if(bundle.getEntity() instanceof Locationable) {
+					Locationable locationable = (Locationable)bundle.getEntity();
+					List<LocationData> locs = locationable.getLocations();
+					if(locs != null && locs.size() > 0) {
+						LocationData ld = locs.get(0);
+						if(ld != null) {
+							url = ld.getPath();
+						}
+						uploadGenomeSpaceUrl(url, null);
+					}
+				} else if(bundle.getEntity() instanceof FileEntity) {
+					final FileEntity fileEntity = (FileEntity)bundle.getEntity();
+					FileHandle fileHandle = DisplayUtils.getFileHandle(bundle);
+					if(fileHandle != null) {
+						if (fileHandle instanceof ExternalFileHandle) {
+							url = ((ExternalFileHandle) fileHandle).getExternalURL();
+							uploadGenomeSpaceUrl(url, null);
+						}
+						else if (fileHandle instanceof S3FileHandleInterface){
+							synapseClient.getFileEntityTemporaryUrlForVersion(fileEntity.getId(), fileEntity.getVersionNumber(), new AsyncCallback<String>() {
+								@Override
+								public void onSuccess(String realUrl) {
+									if(realUrl != null && !realUrl.equals(""))
+										uploadGenomeSpaceUrl(realUrl, fileEntity.getName());
+								}
+								@Override
+								public void onFailure(Throwable caught) {
+									showErrorMessage(DisplayConstants.ERROR_GENERIC);
+								}
+							});							
+						}
+					}
+				}				
+			}
+
+			private void uploadGenomeSpaceUrl(String url, String fileName) {
+				if(url == null || url.equals("")) {
+					showErrorMessage("This entity does not contain a file to upload.");
+				} else {
+					url = url.replaceFirst("http://127.0.0.1:8888", "https://www.synapse.org");
+					if(fileName != null)
+						synapseJSNIUtils.uploadUrlToGenomeSpace(url, fileName);
+					else
+						synapseJSNIUtils.uploadUrlToGenomeSpace(url);
+				}
+			}
+		});
+		menu.add(item);
 	}
 }

@@ -3,6 +3,7 @@ package org.sagebionetworks.web.server.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sagebionetworks.StackConfiguration;
@@ -1382,5 +1384,17 @@ public class SynapseClientImpl extends RemoteServiceServlet implements
 		} catch (JSONObjectAdapterException e) {
 			throw new UnknownErrorException(e.getMessage());
 		}
+	}
+
+	@Override
+	public String getFileEntityTemporaryUrlForVersion(String entityId, Long versionNumber) throws RestServiceException {
+		Synapse synapseClient = createSynapseClient();
+		try {
+			URL url = synapseClient.getFileEntityTemporaryUrlForVersion(entityId, versionNumber);
+			return url.toString();
+		} catch (Exception e) {
+			throw new UnknownErrorException();
+		}
+		
 	}
 }
