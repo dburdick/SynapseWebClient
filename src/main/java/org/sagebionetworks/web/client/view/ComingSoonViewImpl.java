@@ -1,33 +1,18 @@
 package org.sagebionetworks.web.client.view;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.sagebionetworks.repo.model.Entity;
-import org.sagebionetworks.repo.model.Versionable;
-import org.sagebionetworks.web.client.DisplayConstants;
 import org.sagebionetworks.web.client.DisplayUtils;
 import org.sagebionetworks.web.client.IconsImageBundle;
 import org.sagebionetworks.web.client.SageImageBundle;
 import org.sagebionetworks.web.client.SynapseJSNIUtils;
-import org.sagebionetworks.web.client.utils.TOOLTIP_POSITION;
-import org.sagebionetworks.web.client.widget.entity.registration.WidgetConstants;
-import org.sagebionetworks.web.client.widget.entity.ProgrammaticClientCode;
-import org.sagebionetworks.web.client.widget.entity.browse.EntityFinder;
 import org.sagebionetworks.web.client.widget.footer.Footer;
 import org.sagebionetworks.web.client.widget.header.Header;
-import org.sagebionetworks.web.client.widget.provenance.ProvenanceWidget;
+import org.sagebionetworks.web.client.widget.preview.CytoscapeWidget;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -47,13 +32,14 @@ public class ComingSoonViewImpl extends Composite implements ComingSoonView {
 	private IconsImageBundle icons;
 	private Header headerWidget;
 	private Footer footerWidget;
-	ProvenanceWidget provenanceWidget;
+	CytoscapeWidget cytoscapeWidget;
 	SynapseJSNIUtils synapseJSNIUtils;
 	
 	@Inject
 	public ComingSoonViewImpl(ComingSoonViewImplUiBinder binder,
 			Header headerWidget, Footer footerWidget, IconsImageBundle icons,
-			SageImageBundle sageImageBundle, SynapseJSNIUtils synapseJSNIUtils, ProvenanceWidget provenanceWidget) {		
+			SageImageBundle sageImageBundle, SynapseJSNIUtils synapseJSNIUtils,
+			CytoscapeWidget cytoscapeWidget) {
 		initWidget(binder.createAndBindUi(this));
 
 		this.icons = icons;
@@ -61,7 +47,7 @@ public class ComingSoonViewImpl extends Composite implements ComingSoonView {
 		this.footerWidget = footerWidget;
 		this.synapseJSNIUtils = synapseJSNIUtils;
 		
-		this.provenanceWidget = provenanceWidget;
+		this.cytoscapeWidget = cytoscapeWidget;
 		header.add(headerWidget.asWidget());
 		footer.add(footerWidget.asWidget());		
 				
@@ -70,8 +56,6 @@ public class ComingSoonViewImpl extends Composite implements ComingSoonView {
 	@Override
 	public void setPresenter(final Presenter presenter) {
 		this.presenter = presenter;
-		//provenanceWidget.setHeight(400);
-		((LayoutContainer)provenanceWidget.asWidget()).setAutoHeight(true);
 		
 		header.clear();
 		header.add(headerWidget.asWidget());
@@ -101,18 +85,8 @@ public class ComingSoonViewImpl extends Composite implements ComingSoonView {
 
 	@Override
 	public void setEntity(Entity entity) {
-		Long version = null;
-		if(entity instanceof Versionable) 
-			version = ((Versionable)entity).getVersionNumber();			
-		Map<String,String> configMap = new HashMap<String,String>();
-		String entityList = DisplayUtils.createEntityVersionString(entity.getId(), null) +","+"syn114241";
-		configMap.put(WidgetConstants.PROV_WIDGET_ENTITY_LIST_KEY, entityList);
-		configMap.put(WidgetConstants.PROV_WIDGET_EXPAND_KEY, Boolean.toString(true));
-		configMap.put(WidgetConstants.PROV_WIDGET_UNDEFINED_KEY, Boolean.toString(false));
-		configMap.put(WidgetConstants.PROV_WIDGET_DEPTH_KEY, Integer.toString(1));		
-	    provenanceWidget.configure(null, configMap);
-	    provenanceWidget.setHeight(800);	
-	    entityView.setWidget(provenanceWidget.asWidget());
+		cytoscapeWidget.configure();		
+		entityView.setWidget(cytoscapeWidget.asWidget());		
 	}
 
 	

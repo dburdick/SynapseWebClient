@@ -1,22 +1,20 @@
 package org.sagebionetworks.web.client.widget.preview;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sagebionetworks.web.client.ClientProperties;
-import org.sagebionetworks.web.client.DisplayConstants;
 import org.sagebionetworks.web.client.DisplayUtils;
 import org.sagebionetworks.web.client.SageImageBundle;
 import org.sagebionetworks.web.client.resources.ResourceLoader;
+import org.sagebionetworks.web.client.resources.WebResource;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -30,15 +28,16 @@ public class CytoscapeWidgetViewImpl extends LayoutContainer implements Cytoscap
 	private LayoutContainer container;
 	private HTML loadingContainer;
 	private String graphJson;
+	private boolean cytoscapeLoaded = false;
 	
 	@Inject
 	public CytoscapeWidgetViewImpl(ResourceLoader resourceLoader, SageImageBundle sageImageBundle) {
 		this.resourceLoader = resourceLoader;		
 		container = new LayoutContainer();
 		container.setId(getNewId());
-		container.addStyleName("slider-area-inner");
-		container.setHeight(500);
-		container.setWidth(500);
+		container.setHeight(400);
+		container.setWidth(400);
+		container.setBorders(true);
 		this.add(container);
 		
 		loadingContainer = new HTML(DisplayUtils.getLoadingHtml(sageImageBundle, "Loading Cytoscape"));
@@ -48,18 +47,21 @@ public class CytoscapeWidgetViewImpl extends LayoutContainer implements Cytoscap
 	@Override
 	public void configure(String graphJson) {
 		this.graphJson = graphJson;
-		final CytoscapeWidgetViewImpl self = this;
+		buildGraph();
 	}	
 
 	@Override
 	public void onRender(Element parent, int index) {
 		super.onRender(parent, index);	
 		// load Cytoscape Javascript
-		resourceLoader.requires(ClientProperties.CYTOSCAPE_JS, new AsyncCallback<Void>() {
+		List<WebResource> list = new ArrayList<WebResource>();
+		list.add(ClientProperties.CYTOSCAPE_JS);
+		list.add(ClientProperties.CYTOSCAPE_FACTORY_JS);
+		resourceLoader.requires(list, new AsyncCallback<Void>() {
 			@Override
 			public void onSuccess(Void result) {
-				initCytoscape(container.getId());
-				//buildGraph();
+				cytoscapeLoaded = true;
+				buildGraph();
 			}
 			@Override
 			public void onFailure(Throwable caught) {
@@ -67,59 +69,34 @@ public class CytoscapeWidgetViewImpl extends LayoutContainer implements Cytoscap
 		});		
 	}
 
-	private static native void initCytoscape(String containerId) /*-{
-		
-		$wnd.jQuery('#'+containerId).cytoscape({
-		  
-		  elements: {
-		    nodes: [
-		      { data: { id: 'j', name: 'Jerry' } },
-		      { data: { id: 'e', name: 'Elaine' } }
-		    ],
-		    edges: [
-		      { data: { source: 'j', target: 'e' } }
-		    ]
-		  },
-		  
-		  ready: function(){
-		    $wnd.cy = this;
-		    
-		    cy.elements().unselectify();
-		    
-		    cy.on('tap', 'node', function(e){
-		      var node = e.cyTarget; 
-		      var neighborhood = node.neighborhood().add(node);
-		      
-		      cy.elements().addClass('faded');
-		      neighborhood.removeClass('faded');
-		    });
-		    
-		    cy.on('tap', function(e){
-		      if( e.cyTarget === cy ){
-		        cy.elements().removeClass('faded');
-		      }
-		    });
-		  }
-		});
-
-
-
-	}-*/;
-
 	private void buildGraph() {	
-		if(graphJson != null) {
-//			JSONValue graph = JSONParser.parseStrict(graphJson);
-//			if(graph.isObject() == null) {
-//				// bad json format
-//				showErrorMessage(DisplayConstants.ERROR_LOADING_CYTOSCAPE);
-//				return;
-//			}
-			// send graph to cytoscape
+		if(graphJson != null && cytoscapeLoaded) {
+			JavaScriptObject graph = parseJson(graphJson);
+			initCytoscape(container.getId(), graphJson);
 		}
 	}
 	
+	/*
+	 * Takes in a trusted JSON String and evals it.
+	 * @param JSON String that you trust
+	 * @return JavaScriptObject that you can cast to an Overlay Type
+	 */
+	public static native JavaScriptObject parseJson(String jsonStr) /*-{
+	  return eval( "(" + jsonStr + ")");
+	}-*/;
+	
+	private static native void initCytoscape(String containerId, String graphJson) /*-{	
+		function callback(cy) {
+			elementsJson = "{ \"data\": { \"id\": \"d\", \"name\": \"Dave\", \"weight\": 70, \"height\": 150 }, \"group\": \"nodes\" },{ \"data\": { \"source\": \"d\", \"target\": \"e\" }, \"group\":\"edges\" }";
+			$wnd.cyLoad(cy, elementsJson);
+		}
+		
+		$wnd.getCytoscapeInstance(containerId, graphJson, callback);		
+	}-*/;
+
 	@Override
 	public Widget asWidget() {
+		this.layout(true);
 		return this;
 	}
 
